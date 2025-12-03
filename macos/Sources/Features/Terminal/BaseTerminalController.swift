@@ -123,10 +123,21 @@ class BaseTerminalController: NSWindowController,
         // Inject LYRA_TERM environment variable
         var config = base ?? Ghostty.SurfaceConfiguration()
         config.environmentVariables["LYRA_TERM"] = "1"
-        
-        // Hide cursor in TTY using escape sequence (DECTCEM)
-        // \u{1B}[?25l : Hide Cursor
         config.initialInput = "\u{1B}[?25l"
+        
+        // Inject Custom Shell Config
+        // We look for the user's shell and append the appropriate init flag
+        let userShell = ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh"
+        
+        if let resourcePath = Bundle.main.path(forResource: "lyra-init", ofType: "fish"),
+           userShell.hasSuffix("fish") {
+            // For Fish: use -C "source ..."
+            // We need to be careful not to override the user's command if they set one,
+            // but SurfaceConfiguration.command is usually nil for default shell.
+            if config.command == nil {
+                config.command = "\(userShell) -C 'source \(resourcePath)'"
+            }
+        }
         
         self.surfaceTree = tree ?? .init(view: Ghostty.SurfaceView(ghostty_app, baseConfig: config))
 

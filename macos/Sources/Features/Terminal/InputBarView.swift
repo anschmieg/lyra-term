@@ -42,6 +42,15 @@ struct InputBarView: View {
                     
                     CodeEditor(text: $text, dynamicHeight: $inputHeight, onSubmit: {
                         print("Command submitted: \(text)")
+                        
+                        // Sync UI state if user types the command manually
+                        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+                        if trimmed == "lyra-on" {
+                            isAiMode = true
+                        } else if trimmed == "lyra-off" {
+                            isAiMode = false
+                        }
+                        
                         surface?.sendText(text)
                         surface?.sendAction("\r")
                         text = ""
