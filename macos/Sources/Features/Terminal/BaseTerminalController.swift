@@ -124,6 +124,10 @@ class BaseTerminalController: NSWindowController,
         var config = base ?? Ghostty.SurfaceConfiguration()
         config.environmentVariables["LYRA_TERM"] = "1"
         
+        // Hide cursor in TTY using escape sequence (DECTCEM)
+        // \u{1B}[?25l : Hide Cursor
+        config.initialInput = "\u{1B}[?25l"
+        
         self.surfaceTree = tree ?? .init(view: Ghostty.SurfaceView(ghostty_app, baseConfig: config))
 
         // Setup our notifications for behaviors

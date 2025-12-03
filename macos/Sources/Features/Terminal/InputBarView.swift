@@ -6,6 +6,7 @@ struct InputBarView: View {
     @State private var isFocused: Bool = false
     @State private var inputHeight: CGFloat = 20
     @State private var isAiMode: Bool = false
+    @FocusState private var isInputFocused: Bool
     
     var body: some View {
         VStack(spacing: 0) {
@@ -26,6 +27,7 @@ struct InputBarView: View {
                         .foregroundColor(isAiMode ? .purple : .secondary)
                 }
                 .buttonStyle(.plain)
+                .keyboardShortcut("i", modifiers: .command) // Cmd+I to toggle
                 .padding(.bottom, 14) // Align with text baseline roughly
 
                 // Native Input Field
@@ -44,12 +46,19 @@ struct InputBarView: View {
                         surface?.sendAction("\r")
                         text = ""
                     })
+                    .focused($isInputFocused)
                     .frame(height: min(max(inputHeight, 20), 200))
                 }
                 .padding(.vertical, 12)
             }
             .padding(.horizontal, 16)
             .background(Color(NSColor.windowBackgroundColor))
+            .onAppear {
+                // Auto-focus input when view appears
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    isInputFocused = true
+                }
+            }
         }
     }
 }
