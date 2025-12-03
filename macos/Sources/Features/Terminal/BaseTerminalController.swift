@@ -119,7 +119,12 @@ class BaseTerminalController: NSWindowController,
 
         // Initialize our initial surface.
         guard let ghostty_app = ghostty.app else { preconditionFailure("app must be loaded") }
-        self.surfaceTree = tree ?? .init(view: Ghostty.SurfaceView(ghostty_app, baseConfig: base))
+        
+        // Inject LYRA_TERM environment variable
+        var config = base ?? Ghostty.SurfaceConfiguration()
+        config.environmentVariables["LYRA_TERM"] = "1"
+        
+        self.surfaceTree = tree ?? .init(view: Ghostty.SurfaceView(ghostty_app, baseConfig: config))
 
         // Setup our notifications for behaviors
         let center = NotificationCenter.default

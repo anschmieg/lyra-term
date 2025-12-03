@@ -1344,6 +1344,45 @@ extension Ghostty {
                 return ghostty_surface_key(surface, key_ev)
             }
         }
+        
+        /// Sends arbitrary text input to the surface as if typed.
+        func sendText(_ text: String) {
+            guard let surface = self.surface else { return }
+            
+            text.withCString { ptr in
+                var key_ev = ghostty_input_key_s()
+                key_ev.action = GHOSTTY_ACTION_PRESS
+                key_ev.text = ptr
+                key_ev.keycode = 0
+                key_ev.mods = Ghostty.ghosttyMods([])
+                
+                _ = ghostty_surface_key(surface, key_ev)
+            }
+        }
+        
+        /// Sends a specific key action (like Enter)
+        func sendAction(_ key: String) {
+            guard let surface = self.surface else { return }
+            
+            // Map common keys to their codes if needed, or just send the char
+            // For Enter, we typically want to send \r with the correct keycode if possible,
+            // but sending it as a key event with text "\r" usually works for shells.
+            key.withCString { ptr in
+                var key_ev = ghostty_input_key_s()
+                key_ev.action = GHOSTTY_ACTION_PRESS
+                key_ev.text = ptr
+                
+                if key == "\r" {
+                    key_ev.keycode = 36 // Return key
+                    key_ev.unshifted_codepoint = 13
+                } else {
+                    key_ev.keycode = 0
+                }
+                
+                key_ev.mods = Ghostty.ghosttyMods([])
+                _ = ghostty_surface_key(surface, key_ev)
+            }
+        }
 
         override func quickLook(with event: NSEvent) {
             guard let surface = self.surface else { return super.quickLook(with: event) }

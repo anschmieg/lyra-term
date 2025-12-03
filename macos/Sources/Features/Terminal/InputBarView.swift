@@ -1,25 +1,54 @@
 import SwiftUI
 
 struct InputBarView: View {
+    var surface: Ghostty.SurfaceView?
     @State private var text: String = ""
+    @State private var isFocused: Bool = false
+    @State private var inputHeight: CGFloat = 20
+    @State private var isAiMode: Bool = false
     
     var body: some View {
         VStack(spacing: 0) {
             Divider()
-            HStack {
-                Image(systemName: "chevron.right")
-                    .foregroundColor(.gray)
-                    .font(.system(size: 12, weight: .bold))
-                
-                TextField("Type a command...", text: $text)
-                    .textFieldStyle(.plain)
-                    .font(.system(.body, design: .monospaced))
-                    .onSubmit {
-                        print("Command submitted: \(text)")
-                        text = ""
+                .background(Color.gray.opacity(0.2))
+            
+            HStack(alignment: .bottom, spacing: 12) {
+                // AI Mode Toggle
+                Button(action: {
+                    isAiMode.toggle()
+                    // Sync with shell
+                    let cmd = isAiMode ? "lyra-on" : "lyra-off"
+                    surface?.sendText(cmd)
+                    surface?.sendAction("\r")
+                }) {
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 16))
+                        .foregroundColor(isAiMode ? .purple : .secondary)
+                }
+                .buttonStyle(.plain)
+                .padding(.bottom, 14) // Align with text baseline roughly
+
+                // Native Input Field
+                ZStack(alignment: .leading) {
+                    if text.isEmpty {
+                        Text(isAiMode ? "Ask Lyra..." : "Type a command...")
+                            .font(.system(size: 14, weight: .medium, design: .monospaced))
+                            .foregroundColor(Color(NSColor.placeholderTextColor))
+                            .padding(.leading, 4)
+                            .allowsHitTesting(false)
                     }
+                    
+                    CodeEditor(text: $text, dynamicHeight: $inputHeight, onSubmit: {
+                        print("Command submitted: \(text)")
+                        surface?.sendText(text)
+                        surface?.sendAction("\r")
+                        text = ""
+                    })
+                    .frame(height: min(max(inputHeight, 20), 200))
+                }
+                .padding(.vertical, 12)
             }
-            .padding(10)
+            .padding(.horizontal, 16)
             .background(Color(NSColor.windowBackgroundColor))
         }
     }

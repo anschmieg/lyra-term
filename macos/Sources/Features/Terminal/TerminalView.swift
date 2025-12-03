@@ -104,7 +104,7 @@ struct TerminalView<ViewModel: TerminalViewModel>: View {
                                idealHeight: lastFocusedSurface.value?.initialSize?.height)
                     
                     // [LYRA HACK] Native Input Bar
-                    InputBarView()
+                    InputBarView(surface: lastFocusedSurface.value)
                 }
                 // Ignore safe area to extend up in to the titlebar region if we have the "hidden" titlebar style
                 .ignoresSafeArea(.container, edges: ghostty.config.macosTitlebarStyle == "hidden" ? .top : [])
