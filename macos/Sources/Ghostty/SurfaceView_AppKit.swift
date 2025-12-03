@@ -227,17 +227,7 @@ extension Ghostty {
         private var eventMonitor: Any? = nil
 
         // We need to support being a first responder so that we can get input events
-        override var acceptsFirstResponder: Bool {
-            guard let surfaceModel else { return true }
-            // Lyra: Only accept focus if we are in an interactive mode (Mouse Captured)
-            // or if we detect a common pager like 'less' or 'man' via title (Hack until isAlternateScreen is exposed)
-            let isInteractive = surfaceModel.mouseCaptured || 
-                                title.lowercased().contains("less") || 
-                                title.lowercased().contains("man") ||
-                                title.lowercased().contains("vim") ||
-                                title.lowercased().contains("nvim")
-            return isInteractive
-        }
+        override var acceptsFirstResponder: Bool { return true }
 
         init(_ app: ghostty_app_t, baseConfig: SurfaceConfiguration? = nil, uuid: UUID? = nil) {
             self.markedText = NSMutableAttributedString()
