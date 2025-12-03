@@ -227,7 +227,17 @@ extension Ghostty {
         private var eventMonitor: Any? = nil
 
         // We need to support being a first responder so that we can get input events
-        override var acceptsFirstResponder: Bool { return true }
+        override var acceptsFirstResponder: Bool {
+            guard let surfaceModel else { return true }
+            // Lyra: Only accept focus if we are in an interactive mode (Mouse Captured)
+            // or if we detect a common pager like 'less' or 'man' via title (Hack until isAlternateScreen is exposed)
+            let isInteractive = surfaceModel.mouseCaptured || 
+                                title.lowercased().contains("less") || 
+                                title.lowercased().contains("man") ||
+                                title.lowercased().contains("vim") ||
+                                title.lowercased().contains("nvim")
+            return isInteractive
+        }
 
         init(_ app: ghostty_app_t, baseConfig: SurfaceConfiguration? = nil, uuid: UUID? = nil) {
             self.markedText = NSMutableAttributedString()
@@ -239,7 +249,7 @@ extension Ghostty {
             } else {
                 self.derivedConfig = DerivedConfig()
             }
-
+            
             // We need to initialize this so it does something but we want to set
             // it back up later so we can reference `self`. This is a hack we should
             // fix at some point.
@@ -250,6 +260,12 @@ extension Ghostty {
             // is non-zero so that our layer bounds are non-zero so that our renderer
             // can do SOMETHING.
             super.init(frame: NSMakeRect(0, 0, 800, 600))
+
+            // Lyra: Poll for mouse capture state to update UI
+            // This is needed because we don't have a callback for this state change yet
+            Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { [weak self] _ in
+                self?.objectWillChange.send()
+            }
 
             // Our cache of screen data
             cachedScreenContents = .init(duration: .milliseconds(500)) { [weak self] in

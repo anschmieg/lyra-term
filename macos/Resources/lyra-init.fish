@@ -9,10 +9,9 @@ set -gx LYRA_TERM 1
 
 # 3. Hide Prompt
 # We override the prompt functions to be empty.
-# We also disable tide transient prompt if present to avoid overrides.
-set -g tide_prompt_transient_enabled false
-
-function fish_prompt
+# We use --on-event fish_prompt to try and override other handlers if possible,
+# though standard function definition usually wins.
+function fish_prompt --description 'Lyra hidden prompt'
     # Ensure cursor is hidden every time prompt is drawn
     echo -ne "\e[?25l"
 end
@@ -25,6 +24,11 @@ function fish_mode_prompt
     # Empty mode prompt (vi mode)
 end
 
+# Disable Tide if it's loaded
+set -g tide_prompt_transient_enabled false
+set -g tide_left_prompt_items
+set -g tide_right_prompt_items
+
 # 4. AI Mode Aliases & State
 if not set -q LYRA_INPUT_MODE
     set -gx LYRA_INPUT_MODE off
@@ -33,5 +37,3 @@ end
 alias lyra-on="set -gx LYRA_INPUT_MODE agent; commandline -f repaint"
 alias lyra-off="set -gx LYRA_INPUT_MODE off; commandline -f repaint"
 
-# 5. Key Bindings (Optional, if not handled by global config)
-# We rely on the global lyra.fish for bindings usually, but we can enforce them here if needed.

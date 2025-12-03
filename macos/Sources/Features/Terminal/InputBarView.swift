@@ -8,6 +8,8 @@ struct InputBarView: View {
     @State private var isAiMode: Bool = false
     @FocusState private var isInputFocused: Bool
     
+    @State private var isInteractive: Bool = false
+    
     var body: some View {
         VStack(spacing: 0) {
             Divider()
@@ -41,13 +43,15 @@ struct InputBarView: View {
                     }
                     
                     CodeEditor(text: $text, dynamicHeight: $inputHeight, onSubmit: {
-                        print("Command submitted: \(text)")
+                        print("Lyra: Command submitted: '\(text)'")
                         
                         // Sync UI state if user types the command manually
                         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
                         if trimmed == "lyra-on" {
+                            print("Lyra: Switching to AI Mode (Manual)")
                             isAiMode = true
                         } else if trimmed == "lyra-off" {
+                            print("Lyra: Switching to Shell Mode (Manual)")
                             isAiMode = false
                         }
                         
@@ -59,6 +63,8 @@ struct InputBarView: View {
                     .frame(height: min(max(inputHeight, 20), 200))
                 }
                 .padding(.vertical, 12)
+                .opacity(isInteractive ? 0 : 1) // Hide when interactive
+                .frame(height: isInteractive ? 0 : nil) // Collapse space
             }
             .padding(.horizontal, 16)
             .background(Color(NSColor.windowBackgroundColor))
@@ -66,6 +72,29 @@ struct InputBarView: View {
                 // Auto-focus input when view appears
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     isInputFocused = true
+                }
+            }
+            .onReceive(Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()) { _ in
+                // Poll for interactive state
+                if let surface = surface, let model = surface.surfaceModel {
+                    let captured = model.mouseCaptured
+                    let title = surface.title.lowercased()
+                    let newInteractive = captured || 
+                                       title.contains("less") || 
+                                       title.contains("man") ||
+                                       title.contains("vim") ||
+                                       title.contains("nvim")
+                    
+                    if isInteractive != newInteractive {
+                        isInteractive = newInteractive
+                        // If we became interactive, lose focus so terminal can take it
+                        if isInteractive {
+                            isInputFocused = false
+                            surface.window?.makeFirstResponder(surface)
+                        } else {
+                            isInputFocused = true
+                        }
+                    }
                 }
             }
         }

@@ -126,16 +126,20 @@ class BaseTerminalController: NSWindowController,
         config.initialInput = "\u{1B}[?25l"
         
         // Inject Custom Shell Config
-        // We look for the user's shell and append the appropriate init flag
         let userShell = ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh"
         
-        if let resourcePath = Bundle.main.path(forResource: "lyra-init", ofType: "fish"),
-           userShell.hasSuffix("fish") {
-            // For Fish: use -C "source ..."
-            // We need to be careful not to override the user's command if they set one,
-            // but SurfaceConfiguration.command is usually nil for default shell.
-            if config.command == nil {
-                config.command = "\(userShell) -C 'source \(resourcePath)'"
+        if userShell.hasSuffix("fish") {
+            if let resourcePath = Bundle.main.path(forResource: "lyra-init", ofType: "fish") {
+                if config.command == nil {
+                    config.command = "\(userShell) -C 'source \(resourcePath)'"
+                }
+            }
+        } else {
+            // For POSIX shells (bash, zsh), we source the init script via initial input
+            if let resourcePath = Bundle.main.path(forResource: "lyra-init", ofType: "sh") {
+                // We use a space prefix to avoid history recording in some shells
+                // and source the file.
+                config.initialInput = " . \(resourcePath)\r" 
             }
         }
         
