@@ -122,7 +122,7 @@ class BaseTerminalController: NSWindowController,
         
         // Inject LYRA_TERM environment variable
         var config = base ?? Ghostty.SurfaceConfiguration()
-        // config.environmentVariables["LYRA_TERM"] = "1" // DISABLED: Clean Slate
+        config.environmentVariables["LYRA_TERM"] = "1" // Re-enabled for testing
         
         print("Lyra DEBUG: Base config command: \(String(describing: config.command))")
         
