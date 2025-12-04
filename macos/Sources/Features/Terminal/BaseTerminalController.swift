@@ -122,7 +122,7 @@ class BaseTerminalController: NSWindowController,
         
         // Inject LYRA_TERM environment variable
         var config = base ?? Ghostty.SurfaceConfiguration()
-        config.environmentVariables["LYRA_TERM"] = "1"
+        // config.environmentVariables["LYRA_TERM"] = "1" // DISABLED: Clean Slate
         
         print("Lyra DEBUG: Base config command: \(String(describing: config.command))")
         
@@ -137,7 +137,6 @@ class BaseTerminalController: NSWindowController,
         print("Lyra DEBUG: User login shell detected as: \(shell)")
         
         // Force Ghostty to use the detected shell to ensure consistency
-        // This fixes the issue where new tabs might default to Zsh if SHELL env var is different
         if config.command == nil || config.command?.isEmpty == true {
             config.command = shell
         }
@@ -146,16 +145,16 @@ class BaseTerminalController: NSWindowController,
             if let resourcePath = Bundle.main.path(forResource: "lyra-init", ofType: "fish") {
                 // Use initialInput to source AFTER config.fish has loaded
                 // We use a space prefix to avoid history recording
-                config.initialInput = " source \"\(resourcePath)\"\r"
-                print("Lyra DEBUG: Fish init script found at \(resourcePath) (Injection ENABLED)")
+                // config.initialInput = " source \"\(resourcePath)\"\r" // DISABLED: Clean Slate
+                print("Lyra DEBUG: Fish init script found at \(resourcePath) (Injection DISABLED)")
             }
         } else {
             // For POSIX shells (bash, zsh), we source the init script via initial input
             if let resourcePath = Bundle.main.path(forResource: "lyra-init", ofType: "sh") {
                 // We use a space prefix to avoid history recording in some shells
                 // and source the file.
-                config.initialInput = " . \"\(resourcePath)\"\r" 
-                print("Lyra DEBUG: POSIX init script found at \(resourcePath) (Injection ENABLED)")
+                // config.initialInput = " . \"\(resourcePath)\"\r" // DISABLED: Clean Slate
+                print("Lyra DEBUG: POSIX init script found at \(resourcePath) (Injection DISABLED)")
             }
         }
         
