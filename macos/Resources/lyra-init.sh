@@ -1,5 +1,8 @@
 # Lyra Terminal Initialization Script for POSIX Shells (bash, zsh)
 
+# Ensure terminal is in a sane state
+stty sane
+
 export LYRA_TERM=1
 
 # Minimal Prompt for Debugging
