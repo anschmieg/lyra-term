@@ -1009,15 +1009,32 @@ extension Ghostty {
             // is no public API for this as far as I can tell.
 
             guard UserDefaults.standard.bool(forKey: "com.apple.trackpad.forceClick") else { return }
+
             quickLook(with: event)
         }
 
         override func keyDown(with event: NSEvent) {
             // Lyra: Block direct TTY input unless in interactive mode
-            // We allow command keys (shortcuts) to pass through
-            if !isInteractive && !event.modifierFlags.contains(.command) {
+            // We allow:
+            // 1. Command keys (shortcuts)
+            // 2. Control keys (Ctrl+C, Ctrl+D for interruption)
+            // 3. Esc key (keycode 53, for cancelling Lyra/modes)
+            let isCommand = event.modifierFlags.contains(.command)
+            let isControl = event.modifierFlags.contains(.control)
+            let isEsc = event.keyCode == 53
+            
+            if !isInteractive && !isCommand && !isControl && !isEsc {
                 return
             }
+
+            // If we have a key action, we handle it.
+            var action = GHOSTTY_ACTION_PRESS
+            if (event.isARepeat) {
+                action = GHOSTTY_ACTION_REPEAT
+            }
+
+            // On any keyDown event we unset our bell state
+            bell = false
 
             guard let surface = self.surface else {
                 self.interpretKeyEvents([event])
@@ -1070,7 +1087,7 @@ extension Ghostty {
                 ) ?? event
             }
 
-            let action = event.isARepeat ? GHOSTTY_ACTION_REPEAT : GHOSTTY_ACTION_PRESS
+
 
             // By setting this to non-nil, we note that we're in a keyDown event. From here,
             // we call interpretKeyEvents so that we can handle complex input such as Korean

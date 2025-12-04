@@ -29,6 +29,9 @@ set -g tide_prompt_transient_enabled false
 set -g tide_left_prompt_items
 set -g tide_right_prompt_items
 
+# Force repaint to apply changes immediately
+commandline -f repaint
+
 # 4. AI Mode Aliases & State
 if not set -q LYRA_INPUT_MODE
     set -gx LYRA_INPUT_MODE off

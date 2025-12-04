@@ -130,9 +130,9 @@ class BaseTerminalController: NSWindowController,
         
         if userShell.hasSuffix("fish") {
             if let resourcePath = Bundle.main.path(forResource: "lyra-init", ofType: "fish") {
-                if config.command == nil {
-                    config.command = "\(userShell) -C 'source \(resourcePath)'"
-                }
+                // Use initialInput to source AFTER config.fish has loaded
+                // We use a space prefix to avoid history recording
+                config.initialInput = " source \(resourcePath)\r"
             }
         } else {
             // For POSIX shells (bash, zsh), we source the init script via initial input
