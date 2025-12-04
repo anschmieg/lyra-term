@@ -1,8 +1,5 @@
 # Lyra Terminal Initialization Script for POSIX Shells (bash, zsh)
 
-# 1. Hide Cursor (DECTCEM)
-printf "\033[?25l"
-
 # 2. Set Environment Variable
 export LYRA_TERM=1
 
@@ -24,47 +21,39 @@ if [ -n "$ZSH_VERSION" ]; then
         printf "\033[?25l"
     }
 
-    # Lyra Input Interception
-    lyra-enter() {
-        # Debug print (remove later)
-        # echo "DEBUG: Mode is $LYRA_INPUT_MODE"
-        
-        if [[ "$LYRA_INPUT_MODE" == "agent" ]]; then
-            # If buffer is empty, just accept line (newline)
-            if [[ -z "$BUFFER" ]]; then
-                zle .accept-line
-                return
-            fi
-            
-            # Run lyra command
-            # We print a newline first to separate from prompt
-            echo
-            
-            # Check if lyra command exists
-            if ! command -v lyra &> /dev/null; then
-                echo "Error: 'lyra' command not found. Please ensure it is in your PATH."
-                echo "Current PATH: $PATH"
-                BUFFER=""
-                zle reset-prompt
-                return
-            fi
-
-            lyra "$BUFFER"
-            
-            # Clear buffer and redraw prompt
-            BUFFER=""
-            zle reset-prompt
-        else
-            zle .accept-line
-        fi
-    }
-    
-    zle -N lyra-enter
-    bindkey "^M" lyra-enter
+    # Lyra Input Interception (DISABLED FOR DEBUGGING)
+    # lyra-enter() {
+    #     if [[ "$LYRA_INPUT_MODE" == "agent" ]]; then
+    #         if [[ -z "$BUFFER" ]]; then
+    #             zle .accept-line
+    #             return
+    #         fi
+    #         echo
+    #         if ! command -v lyra &> /dev/null; then
+    #             echo "Error: 'lyra' command not found."
+    #             BUFFER=""
+    #             zle reset-prompt
+    #             return
+    #         fi
+    #         lyra "$BUFFER"
+    #         BUFFER=""
+    #         zle reset-prompt
+    #     else
+    #         zle .accept-line
+    #     fi
+    # }
+    # zle -N lyra-enter
+    # bindkey "^M" lyra-enter
 fi
 
 # Ensure local bin and Python bin are in PATH for lyra command
 export PATH="$HOME/.local/bin:$HOME/Library/Python/3.14/bin:$PATH"
+
+# 4. AI Mode Aliases & State
+export LYRA_INPUT_MODE="off"
+
+alias lyra-on='export LYRA_INPUT_MODE="agent"; printf "\r"'
+alias lyra-off='export LYRA_INPUT_MODE="off"; printf "\r"'
 
 # 4. AI Mode Aliases & State
 export LYRA_INPUT_MODE="off"
