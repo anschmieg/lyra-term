@@ -124,16 +124,22 @@ class BaseTerminalController: NSWindowController,
         var config = base ?? Ghostty.SurfaceConfiguration()
         config.environmentVariables["LYRA_TERM"] = "1"
         
-        // Force Zsh for stability and consistent prompt control
-        // We ignore the user's default shell for now to ensure Lyra works correctly
-        config.command = "/bin/zsh"
+        // Inject Custom Shell Config
+        let userShell = ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh"
         
-        // Inject Custom Shell Config for Zsh
-        if let resourcePath = Bundle.main.path(forResource: "lyra-init", ofType: "sh") {
-            // We use a space prefix to avoid history recording
-            // and source the file.
-            // config.initialInput = " . \"\(resourcePath)\"\r" 
-            print("Lyra: Init script found at \(resourcePath)")
+        if userShell.hasSuffix("fish") {
+            if let resourcePath = Bundle.main.path(forResource: "lyra-init", ofType: "fish") {
+                // Use initialInput to source AFTER config.fish has loaded
+                // We use a space prefix to avoid history recording
+                config.initialInput = " source \"\(resourcePath)\"\r"
+            }
+        } else {
+            // For POSIX shells (bash, zsh), we source the init script via initial input
+            if let resourcePath = Bundle.main.path(forResource: "lyra-init", ofType: "sh") {
+                // We use a space prefix to avoid history recording in some shells
+                // and source the file.
+                config.initialInput = " . \"\(resourcePath)\"\r" 
+            }
         }
         
         self.surfaceTree = tree ?? .init(view: Ghostty.SurfaceView(ghostty_app, baseConfig: config))
