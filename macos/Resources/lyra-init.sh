@@ -63,8 +63,8 @@ if [ -n "$ZSH_VERSION" ]; then
     bindkey "^M" lyra-enter
 fi
 
-# Ensure local bin is in PATH for lyra command
-export PATH="$HOME/.local/bin:$PATH"
+# Ensure local bin and Python bin are in PATH for lyra command
+export PATH="$HOME/.local/bin:$HOME/Library/Python/3.14/bin:$PATH"
 
 # 4. AI Mode Aliases & State
 export LYRA_INPUT_MODE="off"
