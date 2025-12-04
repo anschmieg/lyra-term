@@ -126,19 +126,22 @@ class BaseTerminalController: NSWindowController,
         
         // Inject Custom Shell Config
         let userShell = ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh"
+        print("Lyra DEBUG: userShell detected as: \(userShell)")
         
         if userShell.hasSuffix("fish") {
             if let resourcePath = Bundle.main.path(forResource: "lyra-init", ofType: "fish") {
                 // Use initialInput to source AFTER config.fish has loaded
                 // We use a space prefix to avoid history recording
-                config.initialInput = " source \"\(resourcePath)\"\r"
+                // config.initialInput = " source \"\(resourcePath)\"\r"
+                print("Lyra DEBUG: Fish init script found at \(resourcePath) (Injection DISABLED)")
             }
         } else {
             // For POSIX shells (bash, zsh), we source the init script via initial input
             if let resourcePath = Bundle.main.path(forResource: "lyra-init", ofType: "sh") {
                 // We use a space prefix to avoid history recording in some shells
                 // and source the file.
-                config.initialInput = " . \"\(resourcePath)\"\r" 
+                // config.initialInput = " . \"\(resourcePath)\"\r" 
+                print("Lyra DEBUG: POSIX init script found at \(resourcePath) (Injection DISABLED)")
             }
         }
         
