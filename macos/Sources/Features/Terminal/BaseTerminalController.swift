@@ -122,7 +122,9 @@ class BaseTerminalController: NSWindowController,
         
         // Inject LYRA_TERM environment variable
         var config = base ?? Ghostty.SurfaceConfiguration()
-        config.environmentVariables["LYRA_TERM"] = "1"
+        // config.environmentVariables["LYRA_TERM"] = "1" // DISABLED for debugging
+        
+        print("Lyra DEBUG: Base config command: \(String(describing: config.command))")
         
         // Inject Custom Shell Config
         let userShell = ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh"
