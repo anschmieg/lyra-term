@@ -127,10 +127,16 @@ class BaseTerminalController: NSWindowController,
         print("Lyra DEBUG: Base config command: \(String(describing: config.command))")
         
         // Inject Custom Shell Config
-        let userShell = ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh"
-        print("Lyra DEBUG: userShell detected as: \(userShell)")
+        // We use getpwuid to find the actual login shell, as SHELL env var can be misleading in GUI apps
+        let shell: String
+        if let pw = getpwuid(getuid()) {
+            shell = String(cString: pw.pointee.pw_shell)
+        } else {
+            shell = "/bin/zsh" // Fallback
+        }
+        print("Lyra DEBUG: User login shell detected as: \(shell)")
         
-        if userShell.hasSuffix("fish") {
+        if shell.hasSuffix("fish") {
             if let resourcePath = Bundle.main.path(forResource: "lyra-init", ofType: "fish") {
                 // Use initialInput to source AFTER config.fish has loaded
                 // We use a space prefix to avoid history recording
