@@ -123,7 +123,6 @@ class BaseTerminalController: NSWindowController,
         // Inject LYRA_TERM environment variable
         var config = base ?? Ghostty.SurfaceConfiguration()
         config.environmentVariables["LYRA_TERM"] = "1"
-        config.initialInput = "\u{1B}[?25l"
         
         // Force Zsh for stability and consistent prompt control
         // We ignore the user's default shell for now to ensure Lyra works correctly

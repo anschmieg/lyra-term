@@ -23,6 +23,31 @@ if [ -n "$ZSH_VERSION" ]; then
     precmd() {
         printf "\033[?25l"
     }
+
+    # Lyra Input Interception
+    lyra-enter() {
+        if [[ "$LYRA_INPUT_MODE" == "agent" ]]; then
+            # If buffer is empty, just accept line (newline)
+            if [[ -z "$BUFFER" ]]; then
+                zle .accept-line
+                return
+            fi
+            
+            # Run lyra command
+            # We print a newline first to separate from prompt
+            echo
+            lyra "$BUFFER"
+            
+            # Clear buffer and redraw prompt
+            BUFFER=""
+            zle reset-prompt
+        else
+            zle .accept-line
+        fi
+    }
+    
+    zle -N lyra-enter
+    bindkey "^M" lyra-enter
 fi
 
 # 4. AI Mode Aliases & State
