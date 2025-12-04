@@ -55,8 +55,4 @@ export LYRA_INPUT_MODE="off"
 alias lyra-on='export LYRA_INPUT_MODE="agent"; printf "\r"'
 alias lyra-off='export LYRA_INPUT_MODE="off"; printf "\r"'
 
-# 4. AI Mode Aliases & State
-export LYRA_INPUT_MODE="off"
 
-alias lyra-on='export LYRA_INPUT_MODE="agent"; printf "\r"'
-alias lyra-off='export LYRA_INPUT_MODE="off"; printf "\r"'
