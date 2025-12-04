@@ -4,6 +4,10 @@ export LYRA_TERM=1
 
 # For Zsh
 if [ -n "$ZSH_VERSION" ]; then
+    # Save original prompt
+    export LYRA_ORIG_PROMPT="$PROMPT"
+    export LYRA_ORIG_RPROMPT="$RPROMPT"
+
     # Define a precmd to handle mode switching
     precmd() {
         if [ "$LYRA_INPUT_MODE" = "agent" ]; then
@@ -12,10 +16,15 @@ if [ -n "$ZSH_VERSION" ]; then
             PROMPT=""
             RPROMPT=""
         else
-            # Interactive Mode: Show Cursor and Prompt
+            # Interactive Mode: Show Cursor and Restore Prompt
             printf "\033[?25h"
-            PROMPT="%F{green}Lyra>%f "
-            RPROMPT=""
+            if [ -n "$LYRA_ORIG_PROMPT" ]; then
+                PROMPT="$LYRA_ORIG_PROMPT"
+                RPROMPT="$LYRA_ORIG_RPROMPT"
+            else
+                PROMPT="%F{green}Lyra>%f "
+                RPROMPT=""
+            fi
         fi
     }
 fi
