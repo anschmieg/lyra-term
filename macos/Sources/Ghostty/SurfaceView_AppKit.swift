@@ -1015,15 +1015,24 @@ extension Ghostty {
 
         override func keyDown(with event: NSEvent) {
             // Lyra: Block direct TTY input unless in interactive mode
+            
+            // 1. Handle Cmd+I for AI Toggle
+            if event.modifierFlags.contains(.command) && event.charactersIgnoringModifiers == "i" {
+                NotificationCenter.default.post(name: NSNotification.Name("LyraToggleAIMode"), object: nil)
+                return
+            }
+            
             // We allow:
             // 1. Command keys (shortcuts)
-            // 2. Control keys (Ctrl+C, Ctrl+D for interruption)
-            // 3. Esc key (keycode 53, for cancelling Lyra/modes)
+            // 2. Control keys (Ctrl+C, Ctrl+D, etc.)
+            // 3. Option keys (Alt+...)
+            // 4. Esc key (keycode 53)
             let isCommand = event.modifierFlags.contains(.command)
             let isControl = event.modifierFlags.contains(.control)
+            let isOption = event.modifierFlags.contains(.option)
             let isEsc = event.keyCode == 53
             
-            if !isInteractive && !isCommand && !isControl && !isEsc {
+            if !isInteractive && !isCommand && !isControl && !isOption && !isEsc {
                 return
             }
 

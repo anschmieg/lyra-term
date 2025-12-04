@@ -10,6 +10,16 @@ struct InputBarView: View {
     
     @State private var isInteractive: Bool = false
     
+    func toggleAiMode() {
+        // Toggle state first
+        isAiMode.toggle()
+        // Send specific command based on new state
+        let cmd = isAiMode ? "lyra-on" : "lyra-off"
+        print("Lyra: Toggle triggered. Sending '\(cmd)'")
+        surface?.sendText(cmd)
+        surface?.sendAction("\r")
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             Divider()
@@ -18,13 +28,7 @@ struct InputBarView: View {
             HStack(alignment: .bottom, spacing: 12) {
                 // AI Mode Toggle
                 Button(action: {
-                    // Toggle state first
-                    isAiMode.toggle()
-                    // Send specific command based on new state
-                    let cmd = isAiMode ? "lyra-on" : "lyra-off"
-                    print("Lyra: Toggle button pressed. Sending '\(cmd)'")
-                    surface?.sendText(cmd)
-                    surface?.sendAction("\r")
+                    toggleAiMode()
                 }) {
                     Image(systemName: "sparkles")
                         .font(.system(size: 16))
@@ -77,6 +81,9 @@ struct InputBarView: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     isInputFocused = true
                 }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("LyraToggleAIMode"))) { _ in
+                toggleAiMode()
             }
             .onReceive(Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()) { _ in
                 // Poll for interactive state

@@ -24,6 +24,8 @@ end
 
 function fish_mode_prompt
     # Empty mode prompt (vi mode)
+    # Ensure cursor is hidden here too as mode changes might reshow it
+    printf "\e[?25l"
 end
 
 # Highlight the command input to make it distinct (e.g., cyan)
@@ -31,7 +33,22 @@ set -g fish_color_command cyan
 set -g fish_color_param cyan
 set -g fish_color_error red
 
-# Disable Tide if it's loaded
+# Aggressively disable Tide
+# We remove the functions entirely to prevent them from being called
+functions -e tide_prompt
+functions -e _tide_item_os
+functions -e _tide_item_pwd
+functions -e _tide_item_git
+functions -e _tide_item_status
+functions -e _tide_item_cmd_duration
+functions -e _tide_item_context
+functions -e _tide_item_jobs
+functions -e _tide_item_node
+functions -e _tide_item_python
+functions -e _tide_item_rust
+functions -e _tide_item_go
+
+# Disable Tide variables just in case
 set -g tide_prompt_transient_enabled false
 set -g tide_left_prompt_items
 set -g tide_right_prompt_items
