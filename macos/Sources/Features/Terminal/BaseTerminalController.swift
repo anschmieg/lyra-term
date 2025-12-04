@@ -136,6 +136,12 @@ class BaseTerminalController: NSWindowController,
         }
         print("Lyra DEBUG: User login shell detected as: \(shell)")
         
+        // Force Ghostty to use the detected shell to ensure consistency
+        // This fixes the issue where new tabs might default to Zsh if SHELL env var is different
+        if config.command == nil || config.command?.isEmpty == true {
+            config.command = shell
+        }
+        
         if shell.hasSuffix("fish") {
             if let resourcePath = Bundle.main.path(forResource: "lyra-init", ofType: "fish") {
                 // Use initialInput to source AFTER config.fish has loaded
