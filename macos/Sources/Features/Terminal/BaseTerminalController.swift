@@ -132,7 +132,8 @@ class BaseTerminalController: NSWindowController,
         if let resourcePath = Bundle.main.path(forResource: "lyra-init", ofType: "sh") {
             // We use a space prefix to avoid history recording
             // and source the file.
-            config.initialInput = " . \"\(resourcePath)\"\r" 
+            // config.initialInput = " . \"\(resourcePath)\"\r" 
+            print("Lyra: Init script found at \(resourcePath)")
         }
         
         self.surfaceTree = tree ?? .init(view: Ghostty.SurfaceView(ghostty_app, baseConfig: config))
