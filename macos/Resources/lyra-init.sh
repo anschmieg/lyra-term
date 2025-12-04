@@ -12,12 +12,15 @@ if [ -n "$ZSH_VERSION" ]; then
     precmd() {
         if [ "$LYRA_INPUT_MODE" = "agent" ]; then
             # Agent Mode: Hide Cursor and Prompt
-            printf "\033[?25l"
+            # We use multiple methods to ensure it's hidden
+            printf "\033[?25l" # Hide cursor
             PROMPT=""
             RPROMPT=""
+            # Clear any existing prompt
+            zle && zle reset-prompt 2>/dev/null
         else
             # Interactive Mode: Show Cursor and Restore Prompt
-            printf "\033[?25h"
+            printf "\033[?25h" # Show cursor
             if [ -n "$LYRA_ORIG_PROMPT" ]; then
                 PROMPT="$LYRA_ORIG_PROMPT"
                 RPROMPT="$LYRA_ORIG_RPROMPT"

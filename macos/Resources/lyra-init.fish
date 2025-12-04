@@ -8,12 +8,19 @@ function fish_prompt
     if test "$LYRA_INPUT_MODE" = "agent"
         # Agent Mode: Hide Cursor and Prompt
         printf "\e[?25l"
+        # We output nothing for the prompt
     else
         # Interactive Mode: Show Cursor and Prompt
         printf "\e[?25h"
         set_color green
         printf "Lyra-Fish> "
         set_color normal
+    end
+end
+
+function fish_right_prompt
+    if test "$LYRA_INPUT_MODE" = "agent"
+        # Hide right prompt
     end
 end
 
