@@ -26,6 +26,9 @@ if [ -n "$ZSH_VERSION" ]; then
 
     # Lyra Input Interception
     lyra-enter() {
+        # Debug print (remove later)
+        # echo "DEBUG: Mode is $LYRA_INPUT_MODE"
+        
         if [[ "$LYRA_INPUT_MODE" == "agent" ]]; then
             # If buffer is empty, just accept line (newline)
             if [[ -z "$BUFFER" ]]; then
@@ -36,6 +39,16 @@ if [ -n "$ZSH_VERSION" ]; then
             # Run lyra command
             # We print a newline first to separate from prompt
             echo
+            
+            # Check if lyra command exists
+            if ! command -v lyra &> /dev/null; then
+                echo "Error: 'lyra' command not found. Please ensure it is in your PATH."
+                echo "Current PATH: $PATH"
+                BUFFER=""
+                zle reset-prompt
+                return
+            fi
+
             lyra "$BUFFER"
             
             # Clear buffer and redraw prompt
@@ -49,6 +62,9 @@ if [ -n "$ZSH_VERSION" ]; then
     zle -N lyra-enter
     bindkey "^M" lyra-enter
 fi
+
+# Ensure local bin is in PATH for lyra command
+export PATH="$HOME/.local/bin:$PATH"
 
 # 4. AI Mode Aliases & State
 export LYRA_INPUT_MODE="off"
