@@ -1007,11 +1007,18 @@ extension Ghostty {
 
             // If the user has force click enabled then we do a quick look. There
             // is no public API for this as far as I can tell.
+
             guard UserDefaults.standard.bool(forKey: "com.apple.trackpad.forceClick") else { return }
             quickLook(with: event)
         }
 
         override func keyDown(with event: NSEvent) {
+            // Lyra: Block direct TTY input unless in interactive mode
+            // We allow command keys (shortcuts) to pass through
+            if !isInteractive && !event.modifierFlags.contains(.command) {
+                return
+            }
+
             guard let surface = self.surface else {
                 self.interpretKeyEvents([event])
                 return
@@ -1324,6 +1331,18 @@ extension Ghostty {
 
             _ = keyAction(action, event: event)
         }
+
+        // Lyra: Helper to determine if we should allow direct TTY input
+        var isInteractive: Bool {
+            guard let surfaceModel else { return false }
+            // Mouse captured (vim, htop) or common pagers identified by title
+            return surfaceModel.mouseCaptured || 
+                   title.lowercased().contains("less") || 
+                   title.lowercased().contains("man") ||
+                   title.lowercased().contains("vim") ||
+                   title.lowercased().contains("nvim")
+        }
+
 
         private func keyAction(
             _ action: ghostty_input_action_e,

@@ -63,11 +63,13 @@ struct InputBarView: View {
                     .frame(height: min(max(inputHeight, 20), 200))
                 }
                 .padding(.vertical, 12)
-                .opacity(isInteractive ? 0 : 1) // Hide when interactive
-                .frame(height: isInteractive ? 0 : nil) // Collapse space
             }
             .padding(.horizontal, 16)
             .background(Color(NSColor.windowBackgroundColor))
+            // Hide the entire input bar when interactive
+            .opacity(isInteractive ? 0 : 1)
+            .frame(height: isInteractive ? 0 : nil)
+            .clipped() // Ensure no overflow when hidden
             .onAppear {
                 // Auto-focus input when view appears
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
