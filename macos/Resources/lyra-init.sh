@@ -6,16 +6,19 @@ printf "\033[?25l"
 # 2. Set Environment Variable
 export LYRA_TERM=1
 
-# 3. Hide Prompt
+# 3. Hide Prompt & Style
 # For Bash
 if [ -n "$BASH_VERSION" ]; then
-    export PS1=""
-    export PROMPT_COMMAND="printf '\033[?25l'" # Ensure cursor stays hidden
+    # Set PS1 to include hidden cursor + green marker
+    export PS1="\[\033[?25l\]\[\033[32m\]❯ \[\033[0m\]"
+    # Ensure cursor stays hidden
+    export PROMPT_COMMAND="printf '\033[?25l'" 
 fi
 
 # For Zsh
 if [ -n "$ZSH_VERSION" ]; then
-    export PROMPT=""
+    # Set PROMPT to include hidden cursor + green marker
+    export PROMPT="%{\033[?25l%}%F{green}❯ %f"
     export RPROMPT=""
     precmd() {
         printf "\033[?25l"

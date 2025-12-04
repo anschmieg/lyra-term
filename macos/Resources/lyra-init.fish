@@ -2,18 +2,20 @@
 
 # 1. Hide Cursor (DECTCEM)
 # We emit this immediately to ensure the cursor is hidden during startup
-echo -ne "\e[?25l"
+printf "\e[?25l"
 
 # 2. Set Environment Variable
 set -gx LYRA_TERM 1
 
-# 3. Hide Prompt
-# We override the prompt functions to be empty.
-# We use --on-event fish_prompt to try and override other handlers if possible,
-# though standard function definition usually wins.
-function fish_prompt --description 'Lyra hidden prompt'
+# 3. Hide Prompt & Style
+# We override the prompt functions to be minimal but visible for history
+function fish_prompt --description 'Lyra minimal prompt'
     # Ensure cursor is hidden every time prompt is drawn
-    echo -ne "\e[?25l"
+    printf "\e[?25l"
+    # Print the prompt marker in a subtle color (e.g., green)
+    set_color green
+    printf "❯ "
+    set_color normal
 end
 
 function fish_right_prompt
@@ -23,6 +25,11 @@ end
 function fish_mode_prompt
     # Empty mode prompt (vi mode)
 end
+
+# Highlight the command input to make it distinct (e.g., cyan)
+set -g fish_color_command cyan
+set -g fish_color_param cyan
+set -g fish_color_error red
 
 # Disable Tide if it's loaded
 set -g tide_prompt_transient_enabled false

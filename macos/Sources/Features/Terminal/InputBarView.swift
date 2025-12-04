@@ -18,9 +18,11 @@ struct InputBarView: View {
             HStack(alignment: .bottom, spacing: 12) {
                 // AI Mode Toggle
                 Button(action: {
+                    // Toggle state first
                     isAiMode.toggle()
-                    // Sync with shell
+                    // Send specific command based on new state
                     let cmd = isAiMode ? "lyra-on" : "lyra-off"
+                    print("Lyra: Toggle button pressed. Sending '\(cmd)'")
                     surface?.sendText(cmd)
                     surface?.sendAction("\r")
                 }) {
